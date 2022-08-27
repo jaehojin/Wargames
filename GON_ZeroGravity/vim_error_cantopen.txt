@@ -1,0 +1,8 @@
+1. :w !sudo tee %
+Make file to exist
+
+2. :w !sudo chmod 777 %
+Give all permission to file
+
+3. :wq!
+Ignore error: File exists
