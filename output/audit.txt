@@ -1,0 +1,23 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Sun Sep 11 17:43:30 2022
+Invocation: foremost video_in_videomp4.mp4 
+Output directory: /home/jin/Wargame/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: video_in_videomp4.mp4
+Start: Sun Sep 11 17:43:30 2022
+Length: 2 MB (2759624 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.mov 	    1022 KB 	         32 	 
+Finish: Sun Sep 11 17:43:30 2022
+
+1 FILES EXTRACTED
+	
+mov:= 1
+------------------------------------------------------------------
+
+Foremost finished at Sun Sep 11 17:43:30 2022
