@@ -40,14 +40,6 @@ def edit(data):
 
 
 elf = ELF("./tcache_poison")
-<<<<<<< HEAD
-=======
-libc = ELF("./libc-2.27.so")
-# libc-2.29 이상의 버전에서는 tcache에 크기별 tcache당 fd를 기록하는 entries 이외에도,
-# 크기별 tcache당 몇 번이나 free되어 들어왔는지를 세는 counts도 있으므로
-# 해당 버전에서는 counts도 바꿔줘야 한다.
-# 여기서는 entries가 중점이니 링크할 때 쓰는 libc를 2.27로 설정하여 쓰자.
->>>>>>> 42989e3adce5b783dc71f9915c486ca15e9df1d6
 
 # [1] malloc 1회 생성
 alloc(0x30, b"dreamhack")
