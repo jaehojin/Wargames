@@ -1,0 +1,6 @@
+This is for local testing
+1. Find symbol with output leak
+2. Find lowest 1.5 bytes with libc.blukat.me website
+3. Use regex if partial lowest bytes should be modified (ex: TcachePoisoning)
+4. Download corresponding libc
+5. Apply it with pwntools - ELF
