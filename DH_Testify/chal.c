@@ -36,8 +36,8 @@ void err(const char *err_str)
 
 struct node *go(struct node *curr, char ch)
 {
-    for(int i=0; i<curr->wire_amount; i++)
-        if(curr->wire[i]->ch == ch)
+    for (int i = 0; i < curr->wire_amount; i++)
+        if (curr->wire[i]->ch == ch)
             return curr->wire[i]->next;
     return nullptr;
 }
@@ -46,16 +46,16 @@ void gen_fail(struct node *curr)
 {
     struct node *next = nullptr;
 
-    for(int i=0; i < curr->wire_amount; i++)
+    for (int i = 0; i < curr->wire_amount; i++)
     {
         next = nullptr;
-        if((next = go(curr->fail, curr->wire[i]->ch)) == nullptr || next == curr->wire[i]->next)
+        if ((next = go(curr->fail, curr->wire[i]->ch)) == nullptr || next == curr->wire[i]->next)
             curr->wire[i]->next->fail = head;
         else
             curr->wire[i]->next->fail = next;
     }
 
-    for(int i=0; i < curr->wire_amount; i++)
+    for (int i = 0; i < curr->wire_amount; i++)
         gen_fail(curr->wire[i]->next);
 }
 
@@ -70,19 +70,19 @@ void testify()
     struct node *next = nullptr;
     char *curr_str = FLAG;
 
-    while(*curr_str != '\0')
+    while (*curr_str != '\0')
     {
-        if((next = go(curr, *curr_str)) == nullptr)
+        if ((next = go(curr, *curr_str)) == nullptr)
         {
-            if(curr != head)
+            if (curr != head)
                 curr = fail(curr);
             else
                 *curr_str++;
         }
-        else 
+        else
         {
             curr = next;
-            if(curr->str != nullptr)
+            if (curr->str != nullptr)
             {
                 printf("pure!\n");
                 return;
@@ -99,46 +99,48 @@ int generate_testify()
     printf("amount: ");
     scanf("%d", &amount);
 
-    if(amount < 0x0)
+    if (amount < 0x0)
         err("Sorry, Your input value is too small");
-    if(amount > 0x100)
+    if (amount > 0x100)
         err("Sorry, Your input value is too large");
 
     char **arr = (char **)malloc(sizeof(char *) * amount);
-    for(int i=0; i<amount; i++)
+    for (int i = 0; i < amount; i++)
         arr[i] = (char *)malloc(sizeof(char) * 0x10);
-    
-    for(int i=0; i<amount; i++)
-    {        
+
+    for (int i = 0; i < amount; i++)
+    {
         int detect;
-        printf("input %d: ", i+1);
+        printf("input %d: ", i + 1);
         arr[i][(detect = read(0, arr[i], 0x10))] = '\x00';
-        if(detect <= 0 || arr[i][0] == '\n')
+        if (detect <= 0 || arr[i][0] == '\n')
             err("None Input or Read err");
-        if(arr[i][detect-1] == '\n')
-            arr[i][detect-1] = '\x00';  
+        if (arr[i][detect - 1] == '\n')
+            arr[i][detect - 1] = '\x00';
     }
 
     head = (struct node *)malloc(sizeof(struct node));
-    head->str = nullptr; head->wire_amount = 0; head->fail = head;
+    head->str = nullptr;
+    head->wire_amount = 0;
+    head->fail = head;
 
-    for(int i=0; i<amount; i++)
+    for (int i = 0; i < amount; i++)
     {
         struct node *curr = head;
         char *curr_str = arr[i];
 
-        while(true)
-        {   
+        while (true)
+        {
             bool find = false;
-            for(int j=0; j<curr->wire_amount; j++)
-                if(curr->wire[j]->ch == *curr_str)
+            for (int j = 0; j < curr->wire_amount; j++)
+                if (curr->wire[j]->ch == *curr_str)
                 {
                     curr = curr->wire[j]->next;
                     find = true;
                     break;
                 }
 
-            if(find == false)
+            if (find == false)
             {
                 curr->wire[curr->wire_amount] = (struct wire *)malloc(sizeof(struct wire));
                 curr->wire[curr->wire_amount]->ch = *curr_str;
@@ -147,24 +149,24 @@ int generate_testify()
                 curr->wire[curr->wire_amount]->next->wire_amount = 0;
                 curr->wire[curr->wire_amount]->next->str = nullptr;
                 curr->wire[curr->wire_amount]->next->fail = nullptr;
-                
+
                 curr->wire_amount++;
 
-                curr = curr->wire[curr->wire_amount-1]->next;
+                curr = curr->wire[curr->wire_amount - 1]->next;
             }
 
             curr_str++;
 
-            if(*curr_str == '\0')
+            if (*curr_str == '\0')
             {
-                if(curr->str == nullptr)
+                if (curr->str == nullptr)
                 {
                     int len = curr_str - arr[i];
-                    curr->str = (char *)malloc(sizeof(char) * (len+1));
+                    curr->str = (char *)malloc(sizeof(char) * (len + 1));
                     strncpy(curr->str, arr[i], len);
                     curr->str[len] = '\0';
                 }
-                
+
                 break;
             }
         }
@@ -182,7 +184,7 @@ int main()
 
     puts("---------- Testify ----------");
 
-    while(true)
+    while (true)
     {
         char ch[2] = "n";
 
@@ -191,8 +193,7 @@ int main()
         printf("Try Again? [Y/n]: ");
         scanf("%2s", ch);
 
-        if(ch[0] == 'N' || ch[0] == 'n')
+        if (ch[0] == 'N' || ch[0] == 'n')
             return 0;
     }
 }
-
