@@ -14,7 +14,7 @@ else:
 def slog(name, addr):
     return success(name + ": " + str(hex(addr)))
 
-# Hello!
+# Hello
 
 
 p.interactive()

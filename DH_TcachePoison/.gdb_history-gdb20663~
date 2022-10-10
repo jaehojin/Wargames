@@ -1,0 +1,7 @@
+disassemble main
+quit
+q
+disassemble main
+b main
+r
+q
