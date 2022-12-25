@@ -1,0 +1,23 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Sun Dec 25 13:32:17 2022
+Invocation: foremost 00000213.jpg 
+Output directory: /home/jin/Wargame/DH_XMAS22_lolololologfile/corrupt/output/jpg/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: 00000213.jpg
+Start: Sun Dec 25 13:32:17 2022
+Length: 45 KB (46128 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.jpg 	      45 KB 	          0 	 
+Finish: Sun Dec 25 13:32:17 2022
+
+1 FILES EXTRACTED
+	
+jpg:= 1
+------------------------------------------------------------------
+
+Foremost finished at Sun Dec 25 13:32:17 2022

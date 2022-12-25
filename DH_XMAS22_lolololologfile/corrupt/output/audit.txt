@@ -1,0 +1,27 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Sun Dec 25 13:25:44 2022
+Invocation: foremost $Corrupt.copy0 
+Output directory: /home/jin/Wargame/DH_XMAS22_lolololologfile/corrupt/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: $Corrupt.copy0
+Start: Sun Dec 25 13:25:44 2022
+Length: 2 MB (2097152 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000163.jpg 	       8 KB 	      83599 	 
+1:	00000213.jpg 	      45 KB 	     109148 	 
+2:	00000160.pdf 	      57 KB 	      81920 	 
+3:	00002600.pdf 	     216 KB 	    1331200 	 
+Finish: Sun Dec 25 13:25:44 2022
+
+4 FILES EXTRACTED
+	
+jpg:= 2
+pdf:= 2
+------------------------------------------------------------------
+
+Foremost finished at Sun Dec 25 13:25:44 2022
